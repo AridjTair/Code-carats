@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Submit Lost Object</title>
+    <link rel="stylesheet" href="./lost-report.css" />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <a class="back" href="./index.html">← Back</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Lost object report</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Submit a lost object</h1>
+        <p class="hint">
+          Found items stay private. If a high-confidence match is found, we’ll ask you a verification question before sharing any details.
+        </p>
+
+        <form id="lostForm" class="form" novalidate>
+          <div class="sectionTitle">Contact</div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="fullName">Full name *</label>
+              <input id="fullName" name="fullName" type="text" placeholder="e.g., Alex Chen" required />
+              <small class="error" data-for="fullName"></small>
+            </div>
+
+            <div class="field">
+              <label for="email">Email *</label>
+              <input id="email" name="email" type="email" placeholder="e.g., alex@email.com" required />
+              <small class="error" data-for="email"></small>
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone (optional)</label>
+              <input id="phone" name="phone" type="tel" placeholder="e.g., (514) 000-0000" />
+            </div>
+
+            <div class="field">
+              <label for="preferredContact">Preferred contact *</label>
+              <select id="preferredContact" name="preferredContact" required>
+                <option value="" selected disabled>Select one</option>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+              </select>
+              <small class="error" data-for="preferredContact"></small>
+            </div>
+          </div>
+
+          <div class="sectionTitle">Item details</div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="category">Category *</label>
+              <select id="category" name="category" required>
+                <option value="" selected disabled>Select a category</option>
+                <option>Phone</option>
+                <option>Wallet</option>
+                <option>Keys</option>
+                <option>Bag / Backpack</option>
+                <option>Headphones / AirPods</option>
+                <option>Laptop / Tablet</option>
+                <option>ID / Cards</option>
+                <option>Jewelry</option>
+                <option>Other</option>
+              </select>
+              <small class="error" data-for="category"></small>
+            </div>
+
+            <div class="field">
+              <label for="itemName">Item name *</label>
+              <input id="itemName" name="itemName" type="text" placeholder="e.g., iPhone 15 Pro, brown wallet" required />
+              <small class="error" data-for="itemName"></small>
+            </div>
+
+            <div class="field">
+              <label for="brand">Brand (optional)</label>
+              <input id="brand" name="brand" type="text" placeholder="e.g., Apple, Nike, Samsonite" />
+            </div>
+
+            <div class="field">
+              <label for="color">Color *</label>
+              <input id="color" name="color" type="text" placeholder="e.g., black, pink, blue" required />
+              <small class="error" data-for="color"></small>
+            </div>
+
+            <div class="field">
+              <label for="locationLost">Where was it lost? *</label>
+              <input id="locationLost" name="locationLost" type="text" placeholder="e.g., Hall building, metro, cafeteria" required />
+              <small class="error" data-for="locationLost"></small>
+            </div>
+
+            <div class="field">
+              <label for="dateLost">Date lost *</label>
+              <input id="dateLost" name="dateLost" type="date" required />
+              <small class="error" data-for="dateLost"></small>
+            </div>
+
+            <div class="field">
+              <label for="timeLost">Approx. time (optional)</label>
+              <input id="timeLost" name="timeLost" type="time" />
+            </div>
+
+            <div class="field">
+              <label for="uniqueMarks">Unique marks (optional)</label>
+              <input id="uniqueMarks" name="uniqueMarks" type="text" placeholder="stickers, scratches, engraving, contents" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="description">Full description *</label>
+            <textarea
+              id="description"
+              name="description"
+              rows="5"
+              placeholder="Describe your item: material, accessories, what was with it, any identifying details."
+              required
+            ></textarea>
+            <small class="error" data-for="description"></small>
+          </div>
+
+          <div class="field">
+            <label for="photo">Upload a photo (optional)</label>
+            <input id="photo" name="photo" type="file" accept="image/*" />
+            <div class="fileHint" id="fileHint">No file selected</div>
+          </div>
+
+          <label class="checkbox">
+            <input id="consent" name="consent" type="checkbox" required />
+            <span>
+              I confirm this report is accurate and I understand FOUNDLY will request verification before releasing any found-item details. *
+            </span>
+          </label>
+          <small class="error" data-for="consent"></small>
+
+          <div class="actions">
+            <button type="button" class="ghost" id="clearBtn">Clear</button>
+            <button type="submit" class="primary">Submit report</button>
+          </div>
+
+          <div class="status" id="statusBox" aria-live="polite"></div>
+        </form>
+      </section>
+    </main>
+
+    <script src="./lost-report.js"></script>
+  </body>
+</html>
