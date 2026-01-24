@@ -9,3 +9,14 @@ node_modules/
 # Env
 .env
 .env.*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Node
+node_modules/
+
+# Env
+.env
+.env.*
