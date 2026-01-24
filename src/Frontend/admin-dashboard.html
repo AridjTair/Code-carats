@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Dashboard</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./index.html">← Home</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Employee dashboard</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="ghost" id="logoutBtn" type="button">Logout</button>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Dashboard</h1>
+        <p class="hint" id="welcome"></p>
+
+        <div class="list">
+          <div class="item">
+            <div class="itemHeader">
+              <div>
+                <div class="itemTitle">Register a found object</div>
+                <div class="itemMeta">Add a found item to the private inventory.</div>
+              </div>
+              <button class="primary" id="addFoundBtn" type="button">Open</button>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itemHeader">
+              <div>
+                <div class="itemTitle">View found items</div>
+                <div class="itemMeta">Filter and sort the private inventory.</div>
+              </div>
+              <button class="primary" id="foundListBtn" type="button">Open</button>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itemHeader">
+              <div>
+                <div class="itemTitle">Matches</div>
+                <div class="itemMeta">See potential matches based on score and update case status.</div>
+              </div>
+              <button class="primary" id="matchesBtn" type="button">Open</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status" id="statusBox"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-dashboard.js"></script>
+  </body>
+</html>

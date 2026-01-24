@@ -89,3 +89,22 @@ body {
   color: rgba(185, 182, 214, 0.8);
   line-height: 1.5;
 }
+.secondary-btn {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  background: rgba(10, 10, 18, 0.35);
+}
+
+.secondary-btn:hover {
+  border-color: rgba(255,255,255,0.26);
+}
+.secondary-btn:active {
+  transform: translateY(1px);
+}

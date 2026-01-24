@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Employee Login</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./index.html">← Back</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Employee portal</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Employee login</h1>
+        <p class="hint">Login with your employee ID and password.</p>
+
+        <form id="loginForm" novalidate>
+          <div class="grid2">
+            <div class="field">
+              <label for="employeeId">Employee ID</label>
+              <input id="employeeId" type="text" placeholder="e.g., SAP-1024" />
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" placeholder="your password" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="ghost" id="toSignupBtn">Sign up</button>
+            <button type="submit" class="primary">Login</button>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-login.js"></script>
+  </body>
+</html>

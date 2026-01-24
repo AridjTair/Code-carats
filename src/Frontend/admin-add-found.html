@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Add Found Item</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./admin-dashboard.html">← Dashboard</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Register found object</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Register a found object</h1>
+        <p class="hint">This inventory is private. Do not disclose details until verification.</p>
+
+        <form id="foundForm" novalidate>
+          <div class="grid2">
+            <div class="field">
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="" selected disabled>Select a category</option>
+                <option>Phone</option>
+                <option>Wallet</option>
+                <option>Keys</option>
+                <option>Bag / Backpack</option>
+                <option>Headphones / AirPods</option>
+                <option>Laptop / Tablet</option>
+                <option>ID / Cards</option>
+                <option>Jewelry</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="itemName">Item name</label>
+              <input id="itemName" type="text" placeholder="e.g., AirPods Pro case" />
+            </div>
+
+            <div class="field">
+              <label for="brand">Brand (optional)</label>
+              <input id="brand" type="text" placeholder="e.g., Apple" />
+            </div>
+
+            <div class="field">
+              <label for="color">Color</label>
+              <input id="color" type="text" placeholder="e.g., white" />
+            </div>
+
+            <div class="field">
+              <label for="locationFound">Location found</label>
+              <input id="locationFound" type="text" placeholder="e.g., Hall building" />
+            </div>
+
+            <div class="field">
+              <label for="dateFound">Date found</label>
+              <input id="dateFound" type="date" />
+            </div>
+
+            <div class="field">
+              <label for="timeFound">Time (optional)</label>
+              <input id="timeFound" type="time" />
+            </div>
+
+            <div class="field">
+              <label for="uniqueMarks">Unique marks (optional)</label>
+              <input id="uniqueMarks" type="text" placeholder="stickers, scratches, engraving" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" rows="5" placeholder="Describe condition, accessories, etc."></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="ghost" id="clearBtn">Clear</button>
+            <button type="submit" class="primary">Save found item</button>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-add-found.js"></script>
+  </body>
+</html>

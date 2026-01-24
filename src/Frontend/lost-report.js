@@ -76,29 +76,37 @@ form.addEventListener("submit", (e) => {
   }
 
   const payload = {
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    contact: {
-      fullName: document.getElementById("fullName").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      phone: document.getElementById("phone").value.trim(),
-      preferredContact: document.getElementById("preferredContact").value,
-    },
-    item: {
-      category: document.getElementById("category").value,
-      itemName: document.getElementById("itemName").value.trim(),
-      brand: document.getElementById("brand").value.trim(),
-      color: document.getElementById("color").value.trim(),
-      locationLost: document.getElementById("locationLost").value.trim(),
-      dateLost: document.getElementById("dateLost").value,
-      timeLost: document.getElementById("timeLost").value,
-      uniqueMarks: document.getElementById("uniqueMarks").value.trim(),
-      description: document.getElementById("description").value.trim(),
-      photoFileName:
-        (photo.files && photo.files[0] && photo.files[0].name) || "",
-    },
-    status: "submitted",
-  };
+  id: crypto.randomUUID(),
+  createdAt: new Date().toISOString(),
+  contact: {
+    fullName: document.getElementById("fullName").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    preferredContact: document.getElementById("preferredContact").value,
+  },
+  item: {
+    category: document.getElementById("category").value,
+    itemName: document.getElementById("itemName").value.trim(),
+    brand: document.getElementById("brand").value.trim(),
+    color: document.getElementById("color").value.trim(),
+    locationLost: document.getElementById("locationLost").value.trim(),
+    dateLost: document.getElementById("dateLost").value,
+    timeLost: document.getElementById("timeLost").value,
+    uniqueMarks: document.getElementById("uniqueMarks").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    photoFileName:
+      (photo.files && photo.files[0] && photo.files[0].name) || "",
+  },
+
+  status: "New",
+  assignedFoundItemId: "",
+  matchScore: null,
+  verification: {
+    question: "",
+    answer: "",
+    approved: false,
+  },
+};
 
   const existing = JSON.parse(localStorage.getItem("foundly_lost_reports") || "[]");
   existing.unshift(payload);

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Found Items</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./admin-dashboard.html">← Dashboard</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Found items inventory</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Found items</h1>
+        <p class="hint">Filter and sort. Inventory is private.</p>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="filterCategory">Filter by category</label>
+            <select id="filterCategory" class="compact">
+              <option value="">All</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filterStatus">Filter by status</label>
+            <select id="filterStatus" class="compact">
+              <option value="">All</option>
+              <option value="In storage">In storage</option>
+              <option value="Returned">Returned</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="search">Search</label>
+            <input id="search" class="compact" type="text" placeholder="name, color, location, description..." />
+          </div>
+
+          <div class="field">
+            <label for="sortBy">Sort</label>
+            <select id="sortBy" class="compact">
+              <option value="dateDesc">Date (newest)</option>
+              <option value="dateAsc">Date (oldest)</option>
+              <option value="categoryAsc">Category (A–Z)</option>
+              <option value="colorAsc">Color (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="list" id="list"></div>
+        <div class="status" id="statusBox"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-found-list.js"></script>
+  </body>
+</html>

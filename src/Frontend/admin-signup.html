@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Employee Sign Up</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./index.html">← Back</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Employee portal</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Create employee account</h1>
+        <p class="hint">For demo purposes, accounts are stored in your browser (localStorage).</p>
+
+        <form id="signupForm" novalidate>
+          <div class="grid2">
+            <div class="field">
+              <label for="name">Full name</label>
+              <input id="name" type="text" placeholder="e.g., Jamie Lee" />
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="e.g., jamie@company.com" />
+            </div>
+
+            <div class="field">
+              <label for="employeeId">Employee ID</label>
+              <input id="employeeId" type="text" placeholder="e.g., SAP-1024" />
+            </div>
+
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" type="password" placeholder="min 6 chars" />
+            </div>
+
+            <div class="field">
+              <label for="confirm">Confirm password</label>
+              <input id="confirm" type="password" placeholder="retype password" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="ghost" id="toLoginBtn">Go to login</button>
+            <button type="submit" class="primary">Create account</button>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-signup.js"></script>
+  </body>
+</html>

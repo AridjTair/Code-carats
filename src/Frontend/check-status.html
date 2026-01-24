@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Check Status</title>
+    <link rel="stylesheet" href="./lost-report.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./index.html">← Back</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Check status</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Check your report status</h1>
+        <p class="hint">Enter your reference ID from submission.</p>
+
+        <div class="form">
+          <div class="field">
+            <label for="refId">Reference ID</label>
+            <input id="refId" type="text" placeholder="Paste your reference ID" />
+          </div>
+
+          <div class="actions">
+            <button class="ghost" id="clearBtn" type="button">Clear</button>
+            <button class="primary" id="checkBtn" type="button">Check status</button>
+          </div>
+
+          <div class="status" id="statusBox"></div>
+
+          <div id="result" class="result"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./check-status.js"></script>
+  </body>
+</html>

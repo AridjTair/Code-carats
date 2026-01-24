@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOUNDLY — Matches</title>
+    <link rel="stylesheet" href="./admin-theme.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="back" href="./admin-dashboard.html">← Dashboard</a>
+      <div class="brandWrap">
+        <div class="brand">FOUNDLY</div>
+        <div class="sub">Matches</div>
+      </div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="page">
+      <section class="card">
+        <h1>Potential matches</h1>
+        <p class="hint">Matches are scored out of 100. Only show items above threshold for review.</p>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="threshold">Threshold</label>
+            <select id="threshold" class="compact">
+              <option value="50">50%</option>
+              <option value="60">60%</option>
+              <option value="70" selected>70%</option>
+              <option value="80">80%</option>
+              <option value="85">85%</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="statusFilter">Lost report status</label>
+            <select id="statusFilter" class="compact">
+              <option value="">All</option>
+              <option>New</option>
+              <option>In review</option>
+              <option>Potential match found</option>
+              <option>Verified / Claim approved</option>
+              <option>Ready for pickup</option>
+              <option>Closed / Returned</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="list" id="list"></div>
+        <div class="status" id="statusBox"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./admin-matches.js"></script>
+  </body>
+</html>
