@@ -1,9 +1,13 @@
+export const API_BASE = "http://localhost:5050";
+
 export const LS = {
-  EMPLOYEES: "foundly_employees",
-  SESSION: "foundly_employee_session",
-  FOUND: "foundly_found_items",
-  LOST: "foundly_lost_reports",
+  ADMIN_TOKEN: "foundly_admin_token",
+  ADMIN_EMAIL: "foundly_admin_email",
 };
+
+export function save(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
 
 export function load(key, fallback) {
   try {
@@ -13,33 +17,41 @@ export function load(key, fallback) {
   }
 }
 
-export function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+export function setAdminSession({ token, email }) {
+  localStorage.setItem(LS.ADMIN_TOKEN, token);
+  localStorage.setItem(LS.ADMIN_EMAIL, email || "");
 }
 
-export function getSession() {
-  return load(LS.SESSION, null);
+export function getAdminToken() {
+  return localStorage.getItem(LS.ADMIN_TOKEN) || "";
 }
 
 export function requireEmployeeSession() {
-  const s = getSession();
-  if (!s || !s.employeeId) {
-    window.location.href = "./admin-login.html";
-  }
+  const t = getAdminToken();
+  if (!t) window.location.href = "./admin-login.html";
 }
 
 export function logout() {
-  localStorage.removeItem(LS.SESSION);
+  localStorage.removeItem(LS.ADMIN_TOKEN);
+  localStorage.removeItem(LS.ADMIN_EMAIL);
   window.location.href = "./index.html";
+}
+
+export async function apiFetch(path, options = {}) {
+  const token = getAdminToken();
+  const headers = { ...(options.headers || {}) };
+
+  // Your backend authMiddleware should accept Bearer tokens
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const r = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.error || `Request failed: ${r.status}`);
+  return data;
 }
 
 export function normalize(str) {
   return String(str || "").trim().toLowerCase();
-}
-
-export function hasAnyKeyword(haystack, keywords) {
-  const h = normalize(haystack);
-  return keywords.some(k => k && h.includes(normalize(k)));
 }
 
 export function keywords(str) {

@@ -1,4 +1,4 @@
-import { LS, load, save, requireEmployeeSession, getSession } from "./admin-utils.js";
+import { apiFetch, requireEmployeeSession } from "./admin-utils.js";
 
 requireEmployeeSession();
 
@@ -28,7 +28,7 @@ clearBtn.addEventListener("click", () => {
   setStatus("", "");
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   setStatus("", "");
 
@@ -40,28 +40,30 @@ form.addEventListener("submit", (e) => {
     }
   }
 
-  const s = getSession();
-  const found = load(LS.FOUND, []);
+  try {
+    setStatus("", "Saving...");
 
-  const item = {
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    category: fields.category.value,
-    itemName: fields.itemName.value.trim(),
-    brand: fields.brand.value.trim(),
-    color: fields.color.value.trim(),
-    locationFound: fields.locationFound.value.trim(),
-    dateFound: fields.dateFound.value,
-    timeFound: fields.timeFound.value,
-    uniqueMarks: fields.uniqueMarks.value.trim(),
-    description: fields.description.value.trim(),
-    status: "In storage",
-    recordedBy: s?.employeeId || "",
-  };
+    const body = {
+      category: fields.category.value,
+      itemName: fields.itemName.value.trim(),
+      brand: fields.brand.value.trim(),
+      color: fields.color.value.trim(),
+      locationFound: fields.locationFound.value.trim(),
+      dateFound: fields.dateFound.value,
+      uniqueMarks: fields.uniqueMarks.value.trim(),
+      description: fields.description.value.trim(),
+      // timeFound exists in UI; backend currently ignores it. If you want it saved, add it in backend.
+    };
 
-  found.unshift(item);
-  save(LS.FOUND, found);
+    const out = await apiFetch("/api/admin/found-items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-  setStatus("ok", `Saved. Found item ID: ${item.id}`);
-  form.reset();
+    setStatus("ok", `Saved. Found item ID: ${out.foundId}`);
+    form.reset();
+  } catch (err) {
+    setStatus("bad", String(err?.message || err));
+  }
 });

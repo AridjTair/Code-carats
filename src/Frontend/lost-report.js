@@ -1,3 +1,5 @@
+const API_BASE = "http://localhost:5050";
+
 const form = document.getElementById("lostForm");
 const statusBox = document.getElementById("statusBox");
 const clearBtn = document.getElementById("clearBtn");
@@ -66,7 +68,7 @@ clearBtn.addEventListener("click", () => {
   clearErrors();
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   if (!validate()) {
@@ -75,47 +77,53 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  const payload = {
-  id: crypto.randomUUID(),
-  createdAt: new Date().toISOString(),
-  contact: {
-    fullName: document.getElementById("fullName").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
-    preferredContact: document.getElementById("preferredContact").value,
-  },
-  item: {
-    category: document.getElementById("category").value,
-    itemName: document.getElementById("itemName").value.trim(),
-    brand: document.getElementById("brand").value.trim(),
-    color: document.getElementById("color").value.trim(),
-    locationLost: document.getElementById("locationLost").value.trim(),
-    dateLost: document.getElementById("dateLost").value,
-    timeLost: document.getElementById("timeLost").value,
-    uniqueMarks: document.getElementById("uniqueMarks").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    photoFileName:
-      (photo.files && photo.files[0] && photo.files[0].name) || "",
-  },
+  try {
+    statusBox.className = "status";
+    statusBox.textContent = "Submitting...";
 
-  status: "New",
-  assignedFoundItemId: "",
-  matchScore: null,
-  verification: {
-    question: "",
-    answer: "",
-    approved: false,
-  },
-};
+    const fd = new FormData();
 
-  const existing = JSON.parse(localStorage.getItem("foundly_lost_reports") || "[]");
-  existing.unshift(payload);
-  localStorage.setItem("foundly_lost_reports", JSON.stringify(existing));
+    // your backend currently expects these:
+    fd.append("category", document.getElementById("category").value);
+    fd.append("itemName", document.getElementById("itemName").value.trim());
+    fd.append("brand", document.getElementById("brand").value.trim());
+    fd.append("color", document.getElementById("color").value.trim());
+    fd.append("locationLost", document.getElementById("locationLost").value.trim());
+    fd.append("dateLost", document.getElementById("dateLost").value);
+    fd.append("uniqueMarks", document.getElementById("uniqueMarks").value.trim());
+    fd.append("description", document.getElementById("description").value.trim());
 
-  statusBox.className = "status ok";
-  statusBox.textContent =
-    `Report submitted. Reference: ${payload.id}. If a match is found, we’ll contact you for verification.`;
+    // optional photo
+    const f = photo.files && photo.files[0];
+    if (f) fd.append("photo", f);
 
-  form.reset();
-  fileHint.textContent = "No file selected";
+    // OPTIONAL: these are not stored by your backend right now,
+    // but harmless to send (you can add them later to backend if you want).
+    fd.append("fullName", document.getElementById("fullName").value.trim());
+    fd.append("email", document.getElementById("email").value.trim());
+    fd.append("phone", document.getElementById("phone").value.trim());
+    fd.append("preferredContact", document.getElementById("preferredContact").value);
+
+    const r = await fetch(`${API_BASE}/api/inquiries`, {
+      method: "POST",
+      body: fd,
+    });
+
+    const data = await r.json();
+    if (!r.ok) throw new Error(data?.error || "Submit failed");
+
+    statusBox.className = "status ok";
+    statusBox.textContent = `Submitted. Reference ID: ${data.inquiryId}. Confidence: ${data.confidence}.`;
+
+    // convenience: redirect to check status page with the id
+    setTimeout(() => {
+      window.location.href = `./check-status.html?id=${encodeURIComponent(data.inquiryId)}`;
+    }, 600);
+
+    form.reset();
+    fileHint.textContent = "No file selected";
+  } catch (err) {
+    statusBox.className = "status bad";
+    statusBox.textContent = String(err?.message || err);
+  }
 });

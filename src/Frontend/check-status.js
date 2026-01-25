@@ -1,105 +1,100 @@
+const API_BASE = "http://localhost:5050";
+
 const refId = document.getElementById("refId");
 const checkBtn = document.getElementById("checkBtn");
 const clearBtn = document.getElementById("clearBtn");
 const statusBox = document.getElementById("statusBox");
 const result = document.getElementById("result");
 
-function loadReports() {
-  return JSON.parse(localStorage.getItem("foundly_lost_reports") || "[]");
-}
-function saveReports(arr) {
-  localStorage.setItem("foundly_lost_reports", JSON.stringify(arr));
-}
-
 function setStatus(type, msg) {
   statusBox.className = "status " + (type || "");
   statusBox.textContent = msg || "";
 }
 
-function renderReport(r) {
-  const matchInfo =
-    r.matchScore != null
-      ? `<div class="pill">Match score: ${r.matchScore}%</div>`
-      : `<div class="pill muted">Match score: N/A</div>`;
+function esc(s) {
+  return String(s || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-  const assigned =
-    r.assignedFoundItemId
-      ? `<div class="pill">Assigned found item: ${r.assignedFoundItemId}</div>`
-      : `<div class="pill muted">Assigned found item: None</div>`;
+async function fetchStatus(id) {
+  const r = await fetch(`${API_BASE}/api/inquiries/${encodeURIComponent(id)}`);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data?.error || "Not found");
+  return data;
+}
 
-  const hasVerification = !!r.verification?.question;
-  const hasAnswer = !!r.verification?.answer;
+async function claim(inquiryId, claimCode) {
+  const r = await fetch(`${API_BASE}/api/claim`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ inquiryId, claimCode }),
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data?.error || "Claim failed");
+  return data;
+}
 
-  const verBlock = hasVerification
+function render(data) {
+  const claimHtml = data.claimAvailable
     ? `
       <div class="box">
-        <div class="k">Verification</div>
-        <div class="v">${r.verification.question}</div>
-
-        <div class="field" style="margin-top:12px;">
-          <label for="verAnswer">Your answer</label>
-          <input id="verAnswer" type="text" placeholder="Write your proof (e.g., sticker on left side)" value="${hasAnswer ? r.verification.answer : ""}">
-        </div>
-
-        <div class="actions" style="margin-top:10px;">
-          <button class="primary" id="submitVerificationBtn" type="button">Submit verification</button>
-        </div>
-
-        <div class="hint" style="margin-top:8px;">
-          After you submit, staff will review and update your status.
+        <div class="k">Claim</div>
+        <div class="v">
+          Claim is available.<br/>
+          <div class="pill">Claim code: ${esc(data.claimCode)}</div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="primary" id="claimBtn" type="button">Get claim instructions</button>
+          </div>
         </div>
       </div>
     `
-    : "";
+    : `
+      <div class="box">
+        <div class="k">Claim</div>
+        <div class="v">Not available yet.</div>
+      </div>
+    `;
 
   result.innerHTML = `
     <div class="box">
       <div class="k">Status</div>
-      <div class="v">${r.status}</div>
+      <div class="v">${esc(data.status)}</div>
     </div>
     <div class="row">
-      ${matchInfo}
-      ${assigned}
+      <div class="pill">Confidence: ${esc(data.confidence)}</div>
+      <div class="pill muted">Inquiry ID: ${esc(data.inquiryId)}</div>
     </div>
-    ${verBlock}
-    <div class="box">
-      <div class="k">Your report</div>
-      <div class="v">
-        <div><b>${r.item.category}</b> — ${r.item.itemName}</div>
-        <div>Color: ${r.item.color}${r.item.brand ? ` | Brand: ${r.item.brand}` : ""}</div>
-        <div>Lost at: ${r.item.locationLost} | Date: ${r.item.dateLost}</div>
-      </div>
+    ${claimHtml}
+    <div class="hint" style="margin-top:10px;">
+      Inventory stays private. If approved, you’ll receive a claim code.
     </div>
   `;
 
-  // Hook submit button if present
-  const btn = document.getElementById("submitVerificationBtn");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      const answerEl = document.getElementById("verAnswer");
-      const answer = (answerEl?.value || "").trim();
-      if (!answer) {
-        setStatus("bad", "Please write an answer for verification.");
-        return;
+  const claimBtn = document.getElementById("claimBtn");
+  if (claimBtn) {
+    claimBtn.addEventListener("click", async () => {
+      try {
+        setStatus("", "Requesting claim instructions...");
+        const out = await claim(data.inquiryId, data.claimCode);
+        setStatus("ok", "Claim instructions received.");
+        result.innerHTML += `
+          <div class="box" style="margin-top:12px;">
+            <div class="k">Next steps</div>
+            <div class="v">${esc(out.nextSteps)}</div>
+          </div>
+        `;
+      } catch (e) {
+        setStatus("bad", String(e?.message || e));
       }
-
-      const reports = loadReports();
-      const idx = reports.findIndex((x) => x.id === r.id);
-      if (idx === -1) return;
-
-      reports[idx].verification = reports[idx].verification || {};
-      reports[idx].verification.answer = answer;
-      reports[idx].verification.submittedAt = new Date().toISOString();
-
-      saveReports(reports);
-      setStatus("ok", "Verification submitted. Staff will review.");
-      // re-render updated
-      renderReport(reports[idx]);
     });
   }
 }
 
-checkBtn.addEventListener("click", () => {
+checkBtn.addEventListener("click", async () => {
   result.innerHTML = "";
   const id = refId.value.trim();
   if (!id) {
@@ -107,16 +102,14 @@ checkBtn.addEventListener("click", () => {
     return;
   }
 
-  const reports = loadReports();
-  const r = reports.find((x) => x.id === id);
-
-  if (!r) {
-    setStatus("bad", "No report found for that reference ID.");
-    return;
+  try {
+    setStatus("", "Checking...");
+    const data = await fetchStatus(id);
+    setStatus("ok", "Found.");
+    render(data);
+  } catch (e) {
+    setStatus("bad", String(e?.message || e));
   }
-
-  setStatus("ok", "Report found.");
-  renderReport(r);
 });
 
 clearBtn.addEventListener("click", () => {
@@ -124,3 +117,13 @@ clearBtn.addEventListener("click", () => {
   result.innerHTML = "";
   setStatus("", "");
 });
+
+// auto-fill from URL ?id=lost_xxx
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  if (id) {
+    refId.value = id;
+    checkBtn.click();
+  }
+})();
