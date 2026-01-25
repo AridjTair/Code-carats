@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
+const path = require("path");
+
 
 const { getLostReports, saveLostReports, getFoundItems, saveFoundItems } = require("./db");
 const { findMatches } = require("./matcher");
@@ -9,6 +11,16 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
+
+// Serve frontend static files (same origin as backend)
+const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
+app.use(express.static(FRONTEND_DIR));
+
+// Default route: show homepage
+app.get("/", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
+});
+
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "changeme";
