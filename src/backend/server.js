@@ -13,7 +13,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
-const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
+const FRONTEND_DIR = path.resolve(__dirname, "..", "frontend");
 app.use(express.static(FRONTEND_DIR));
 
 app.get("/", (req, res) => {
