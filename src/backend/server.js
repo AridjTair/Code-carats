@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 
 const { getLostReports, saveLostReports, getFoundItems, saveFoundItems } = require("./db");
@@ -13,15 +14,30 @@ const upload = multer({ storage: multer.memoryStorage() });
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
-const FRONTEND_DIR = path.resolve(__dirname, "..", "frontend");
-app.use(express.static(FRONTEND_DIR));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
-});
-
 const PORT = process.env.PORT || 5050;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "foundly-admin-2026";
+
+// Frontend is optional in production.
+// When Railway deploys only src/backend, the sibling src/frontend folder is not present.
+const FRONTEND_DIR = path.resolve(__dirname, "..", "frontend");
+const INDEX_FILE = path.join(FRONTEND_DIR, "index.html");
+const HAS_FRONTEND = fs.existsSync(INDEX_FILE);
+
+if (HAS_FRONTEND) {
+  app.use(express.static(FRONTEND_DIR));
+
+  app.get("/", (req, res) => {
+    res.sendFile(INDEX_FILE);
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.json({
+      ok: true,
+      service: "foundly-backend",
+      message: "Frontend files are not deployed with this backend service.",
+    });
+  });
+}
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "foundly-backend" });
@@ -80,9 +96,10 @@ app.post("/api/inquiries", upload.single("photo"), (req, res) => {
     inquiryId: lost.id,
     confidence,
     bestScore: best,
-    message: best >= 60
-      ? "A potential match was found. We will contact you for verification."
-      : "No match yet. Your report is saved and will be reviewed.",
+    message:
+      best >= 60
+        ? "A potential match was found. We will contact you for verification."
+        : "No match yet. Your report is saved and will be reviewed.",
   });
 });
 
@@ -133,7 +150,6 @@ app.post("/api/claim", (req, res) => {
   });
 });
 
-// ADMIN middleware — accepts both Bearer token and x-admin-token header
 function requireAdmin(req, res, next) {
   const auth = req.headers["authorization"] || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : (req.headers["x-admin-token"] || "");
@@ -297,5 +313,5 @@ app.delete("/api/admin/found-items/:id", requireAdmin, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`FOUNDLY backend running on http://localhost:${PORT}`);
+  console.log(`FOUNDLY backend running on port ${PORT}`);
 });
