@@ -1,4 +1,4 @@
-import { LS, load, save } from "./admin-utils.js";
+import { API_BASE, setAdminSession } from "./admin-utils.js";
 
 const form = document.getElementById("loginForm");
 const statusBox = document.getElementById("statusBox");
@@ -16,7 +16,7 @@ toSignupBtn.addEventListener("click", () => {
   window.location.href = "./admin-signup.html";
 });
 
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   setStatus("", "");
 
@@ -28,20 +28,19 @@ form.addEventListener("submit", (e) => {
     return;
   }
 
-  const employees = load(LS.EMPLOYEES, []);
-  const emp = employees.find(e => String(e.employeeId).toLowerCase() === employeeId.toLowerCase());
+  try {
+    setStatus("", "Logging in...");
+    const r = await fetch(`${API_BASE}/api/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data?.error || "Login failed");
 
-  if (!emp || emp.password !== password) {
-    setStatus("bad", "Invalid credentials.");
-    return;
+    setAdminSession({ token: data.token, email: employeeId });
+    window.location.href = "./admin-dashboard.html";
+  } catch (err) {
+    setStatus("bad", String(err?.message || err));
   }
-
-  save(LS.SESSION, {
-    employeeId: emp.employeeId,
-    name: emp.name,
-    email: emp.email,
-    loginAt: new Date().toISOString(),
-  });
-
-  window.location.href = "./admin-dashboard.html";
 });

@@ -3,6 +3,10 @@ export const API_BASE = "http://localhost:5050";
 export const LS = {
   ADMIN_TOKEN: "foundly_admin_token",
   ADMIN_EMAIL: "foundly_admin_email",
+  EMPLOYEES: "foundly_employees",
+  SESSION: "foundly_session",
+  FOUND: "foundly_found_items",
+  LOST: "foundly_lost_reports",
 };
 
 export function save(key, value) {
@@ -11,15 +15,22 @@ export function save(key, value) {
 
 export function load(key, fallback) {
   try {
-    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return JSON.parse(raw);
   } catch {
     return fallback;
   }
 }
 
+export function getSession() {
+  return load(LS.SESSION, null);
+}
+
 export function setAdminSession({ token, email }) {
   localStorage.setItem(LS.ADMIN_TOKEN, token);
   localStorage.setItem(LS.ADMIN_EMAIL, email || "");
+  save(LS.SESSION, { token, email, loginAt: new Date().toISOString() });
 }
 
 export function getAdminToken() {
@@ -34,14 +45,16 @@ export function requireEmployeeSession() {
 export function logout() {
   localStorage.removeItem(LS.ADMIN_TOKEN);
   localStorage.removeItem(LS.ADMIN_EMAIL);
+  localStorage.removeItem(LS.SESSION);
   window.location.href = "./index.html";
 }
 
 export async function apiFetch(path, options = {}) {
   const token = getAdminToken();
   const headers = { ...(options.headers || {}) };
-
-  // Your backend authMiddleware should accept Bearer tokens
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const r = await fetch(`${API_BASE}${path}`, { ...options, headers });
@@ -55,7 +68,5 @@ export function normalize(str) {
 }
 
 export function keywords(str) {
-  return normalize(str)
-    .split(/[^a-z0-9]+/g)
-    .filter(Boolean);
+  return normalize(str).split(/[^a-z0-9]+/g).filter(Boolean);
 }

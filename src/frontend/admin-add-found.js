@@ -35,7 +35,7 @@ form.addEventListener("submit", async (e) => {
   const required = ["category", "itemName", "color", "locationFound", "dateFound", "description"];
   for (const k of required) {
     if (!fields[k].value || String(fields[k].value).trim() === "") {
-      setStatus("bad", "Fill category, item name, color, location, date, and description.");
+      setStatus("bad", "Please fill category, item name, color, location, date, and description.");
       return;
     }
   }
@@ -52,12 +52,10 @@ form.addEventListener("submit", async (e) => {
       dateFound: fields.dateFound.value,
       uniqueMarks: fields.uniqueMarks.value.trim(),
       description: fields.description.value.trim(),
-      // timeFound exists in UI; backend currently ignores it. If you want it saved, add it in backend.
     };
 
     const out = await apiFetch("/api/admin/found-items", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
