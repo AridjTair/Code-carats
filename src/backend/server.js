@@ -13,37 +13,43 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5050;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "foundly-admin-2026";
 
-// Frontend is optional in production.
-// When Railway deploys only src/backend, the sibling src/frontend folder is not present.
-const FRONTEND_DIR = path.resolve(__dirname, "..", "frontend");
+const FRONTEND_DIR = path.resolve(__dirname, "../frontend");
 const INDEX_FILE = path.join(FRONTEND_DIR, "index.html");
 const HAS_FRONTEND = fs.existsSync(INDEX_FILE);
 
+// Serve frontend static files if present
 if (HAS_FRONTEND) {
   app.use(express.static(FRONTEND_DIR));
-
-  app.get("/", (req, res) => {
-    res.sendFile(INDEX_FILE);
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.json({
-      ok: true,
-      service: "foundly-backend",
-      message: "Frontend files are not deployed with this backend service.",
-    });
-  });
 }
 
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true, service: "foundly-backend" });
+// Root route
+app.get("/", (req, res) => {
+  if (HAS_FRONTEND) {
+    return res.sendFile(INDEX_FILE);
+  }
+
+  return res.json({
+    ok: true,
+    service: "foundly-backend",
+    message: "Frontend files are not deployed with this backend service.",
+  });
 });
 
-// USER: submit lost report (multipart/form-data)
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    service: "foundly-backend",
+    frontendAvailable: HAS_FRONTEND,
+  });
+});
+
+// USER: submit lost report
 app.post("/api/inquiries", upload.single("photo"), (req, res) => {
   const body = req.body || {};
 
@@ -108,7 +114,10 @@ app.get("/api/inquiries/:id", (req, res) => {
   const id = req.params.id;
   const reports = getLostReports();
   const report = reports.find((r) => r.id === id);
-  if (!report) return res.status(404).json({ ok: false, error: "Report not found" });
+
+  if (!report) {
+    return res.status(404).json({ ok: false, error: "Report not found" });
+  }
 
   const foundItems = getFoundItems();
   const matches = findMatches(report.item, foundItems, 1);
@@ -136,13 +145,25 @@ app.get("/api/inquiries/:id", (req, res) => {
 // USER: claim
 app.post("/api/claim", (req, res) => {
   const { inquiryId, claimCode } = req.body || {};
-  if (!inquiryId || !claimCode) return res.status(400).json({ ok: false, error: "Missing inquiryId or claimCode" });
+
+  if (!inquiryId || !claimCode) {
+    return res.status(400).json({ ok: false, error: "Missing inquiryId or claimCode" });
+  }
 
   const reports = getLostReports();
   const report = reports.find((r) => r.id === inquiryId);
-  if (!report) return res.status(404).json({ ok: false, error: "Report not found" });
-  if (!report.claimAvailable) return res.status(400).json({ ok: false, error: "No claim available yet" });
-  if (report.claimCode !== claimCode) return res.status(400).json({ ok: false, error: "Invalid claim code" });
+
+  if (!report) {
+    return res.status(404).json({ ok: false, error: "Report not found" });
+  }
+
+  if (!report.claimAvailable) {
+    return res.status(400).json({ ok: false, error: "No claim available yet" });
+  }
+
+  if (report.claimCode !== claimCode) {
+    return res.status(400).json({ ok: false, error: "Invalid claim code" });
+  }
 
   res.json({
     ok: true,
@@ -152,23 +173,32 @@ app.post("/api/claim", (req, res) => {
 
 function requireAdmin(req, res, next) {
   const auth = req.headers["authorization"] || "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7) : (req.headers["x-admin-token"] || "");
-  if (!token || token !== ADMIN_TOKEN) return res.status(401).json({ ok: false, error: "Unauthorized" });
+  const token = auth.startsWith("Bearer ")
+    ? auth.slice(7)
+    : (req.headers["x-admin-token"] || "");
+
+  if (!token || token !== ADMIN_TOKEN) {
+    return res.status(401).json({ ok: false, error: "Unauthorized" });
+  }
+
   next();
 }
 
 // ADMIN: login
 app.post("/api/admin/login", (req, res) => {
   const { password } = req.body || {};
+
   if (!password || password !== ADMIN_TOKEN) {
     return res.status(401).json({ ok: false, error: "Invalid password" });
   }
+
   res.json({ ok: true, token: ADMIN_TOKEN, email: "admin@foundly.app" });
 });
 
 // ADMIN: add found item
 app.post("/api/admin/found-items", requireAdmin, (req, res) => {
   const body = req.body || {};
+
   const required = ["category", "itemName", "color", "locationFound", "dateFound", "description"];
   for (const k of required) {
     if (!body[k] || String(body[k]).trim() === "") {
@@ -218,8 +248,10 @@ app.get("/api/admin/matches", requireAdmin, (req, res) => {
 
   for (const lost of lostReports) {
     if (lost.status === "Closed / Returned") continue;
+
     const matches = findMatches(lost.item, foundItems, 1);
     if (!matches.length) continue;
+
     const top = matches[0];
     if (top.score < threshold) continue;
 
@@ -264,15 +296,24 @@ app.post("/api/admin/matches/:id/approve", requireAdmin, (req, res) => {
 
   const reports = getLostReports();
   const report = reports.find((r) => r.id === lostId);
-  if (!report) return res.status(404).json({ ok: false, error: "Report not found" });
 
-  const claimCode = "CLAIM-" + crypto.randomBytes(4).toString("hex").toUpperCase();
-  report.status = "Verified / Claim approved";
+  if (!report) {
+    return res.status(404).json({ ok: false, error: "Report not found" });
+  }
+
+  const claimCode = crypto.randomUUID().slice(0, 8).toUpperCase();
+
+  report.status = "Match approved";
   report.claimAvailable = true;
   report.claimCode = claimCode;
+
   saveLostReports(reports);
 
-  res.json({ ok: true, claimCode });
+  res.json({
+    ok: true,
+    claimCode,
+    message: "Match approved and claim code generated.",
+  });
 });
 
 // ADMIN: reject match
@@ -283,9 +324,15 @@ app.post("/api/admin/matches/:id/reject", requireAdmin, (req, res) => {
 
   const reports = getLostReports();
   const report = reports.find((r) => r.id === lostId);
-  if (!report) return res.status(404).json({ ok: false, error: "Report not found" });
+
+  if (!report) {
+    return res.status(404).json({ ok: false, error: "Report not found" });
+  }
 
   report.status = "In review";
+  report.claimAvailable = false;
+  report.claimCode = null;
+
   saveLostReports(reports);
 
   res.json({ ok: true });
@@ -296,9 +343,15 @@ app.patch("/api/admin/found-items/:id", requireAdmin, (req, res) => {
   const id = req.params.id;
   const items = getFoundItems();
   const idx = items.findIndex((i) => i.id === id);
-  if (idx === -1) return res.status(404).json({ ok: false, error: "Not found" });
 
-  if (req.body.status) items[idx].status = req.body.status;
+  if (idx === -1) {
+    return res.status(404).json({ ok: false, error: "Not found" });
+  }
+
+  if (req.body.status) {
+    items[idx].status = req.body.status;
+  }
+
   saveFoundItems(items);
   res.json({ ok: true });
 });
@@ -312,6 +365,18 @@ app.delete("/api/admin/found-items/:id", requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`FOUNDLY backend running on port ${PORT}`);
+// Frontend fallback for non-API routes
+app.get(/^\/(?!api).*/, (req, res) => {
+  if (HAS_FRONTEND) {
+    return res.sendFile(INDEX_FILE);
+  }
+
+  return res.status(404).json({
+    ok: false,
+    error: "Frontend not found",
+  });
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`FOUNDLY backend running on http://localhost:${PORT}`);
 });

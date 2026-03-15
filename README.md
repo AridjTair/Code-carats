@@ -2,7 +2,7 @@
 
 Lost and found web app with secure, confidence-based item matching.
 
-**Live demo:** not ready yet
+**Live demo:** https://code-carats.onrender.com
 
 ---
 
@@ -11,6 +11,7 @@ Lost and found web app with secure, confidence-based item matching.
 Foundly lets users submit lost item reports through a public form. A private admin inventory of found items is cross-referenced using a keyword similarity algorithm (Jaccard scoring). Item details are never exposed publicly — only after a high-confidence match is confirmed by an admin does the user receive a claim code to retrieve their item.
 
 **User flow:**
+
 1. User submits a lost item report with description, category, color, and location
 2. System scores the report against the private found inventory
 3. If a match is found above the confidence threshold, the admin is notified
@@ -18,6 +19,7 @@ Foundly lets users submit lost item reports through a public form. A private adm
 5. On approval, user receives a claim code to pick up their item
 
 **Admin flow:**
+
 - Register found items into the private inventory
 - View and filter the inventory
 - Review potential matches scored by the system
@@ -27,16 +29,16 @@ Foundly lets users submit lost item reports through a public form. A private adm
 
 ## Tech stack
 
-- **Frontend:** HTML, CSS, JavaScript 
+- **Frontend:** HTML, CSS, JavaScript
 - **Backend:** Node.js, Express
 - **Matching:** Jaccard similarity algorithm (overlap scoring)
 - **Storage:** JSON flat files (no database required)
 - **Auth:** Token-based admin authentication
+- **Deployed on:** Render
 
 ---
 
 ## Project structure
-
 ```
 src/
 ├── backend/
@@ -58,8 +60,7 @@ src/
 ---
 
 ## Running locally
-
-```bash
+```
 cd src/backend
 npm install
 node server.js
@@ -67,10 +68,12 @@ node server.js
 
 Open `http://localhost:5050` in your browser.
 
+Or visit the **[live demo](https://code-carats.onrender.com)** — no setup required.
+
 **Default admin password:** `foundly-admin-2026`
 
 To change it, set the environment variable:
-```bash
+```
 ADMIN_TOKEN=your-secure-password node server.js
 ```
 
@@ -81,7 +84,7 @@ ADMIN_TOKEN=your-secure-password node server.js
 Each lost report is scored against every found item in the private inventory using a weighted Jaccard similarity across four dimensions:
 
 | Signal | Max points |
-|---|---|
+| --- | --- |
 | Category match | 30 |
 | Color match | 20 |
 | Location similarity | 20 |
@@ -92,6 +95,10 @@ A score of 60+ surfaces the match for admin review. A score of 80+ is flagged as
 
 ---
 
+## Built at
+
+ConUHacks X — Concordia University, Montreal
+Team: Code Carats
 ## Built at
 
 ConUHacks X — Concordia University, Montreal  
