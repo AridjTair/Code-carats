@@ -2,7 +2,7 @@
 
 Lost and found web app with secure, confidence-based item matching.
 
-**Live demo:** not ready yet
+**Live demo:** https://code-carats.onrender.com
 
 ---
 
